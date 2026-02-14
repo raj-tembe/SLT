@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+
+{% block title %}Translator - Sign Language Platform{% endblock %}
+
+{% block content %}
+<section class="translator-section">
+    <div class="container">
+        <h1 class="page-title">Real-Time Sign Language Translator</h1>
+        <p class="page-subtitle">See your hand skeleton and translated signs in real-time</p>
+
+        <div class="translator-grid">
+            <div class="video-container neumorphic">
+                <div class="video-wrapper">
+                    <img id="video-stream" src="" alt="Video Feed" class="video-stream">
+                    <div class="video-overlay">
+                        <span id="sequence-counter" class="sequence-counter">0</span>
+                    </div>
+                </div>
+                <div class="video-controls">
+                    <button id="start-btn" class="btn btn-primary">🎥 Start Camera</button>
+                    <button id="stop-btn" class="btn btn-secondary" disabled>⏹️ Stop Camera</button>
+                    <button id="clear-btn" class="btn btn-outline">🗑️ Clear Output</button>
+                </div>
+                <div class="stream-status">
+                    <p><strong>Status:</strong> <span id="detection-status" class="status-badge">Idle</span></p>
+                    <p><strong>FPS:</strong> <span id="fps-counter" class="fps-display">0</span></p>
+                    <p><strong>Stream:</strong> <span id="stream-status" class="stream-status-badge">❌ Offline</span></p>
+                </div>
+            </div>
+
+            <div class="output-container neumorphic">
+                <div class="output-header">
+                    <h3>Detected Signs</h3>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="tts-toggle" class="toggle-input">
+                        <span class="toggle-switch"></span>
+                        🔊 Text-to-Speech
+                    </label>
+                </div>
+                
+                <div id="translation-output" class="translation-output">
+                    <p class="placeholder-text">Detected signs appear here...</p>
+                </div>
+
+                <div class="output-info">
+                    <div class="info-item">
+                        <span class="info-label">Detection Mode:</span>
+                        <span class="info-value">Hand Skeleton Tracking</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Model:</span>
+                        <span class="info-value">FINAL_ASL_250</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Confidence Threshold:</span>
+                        <span class="info-value">55%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section neumorphic">
+            <h3>👨‍🏫 How to Use</h3>
+            <ol class="instructions-list">
+                <li>Click "Start Camera" to begin</li>
+                <li>Allow camera access when prompted</li>
+                <li>Your hand skeleton will be displayed on screen in yellow</li>
+                <li>Perform ASL signs clearly in front of the camera</li>
+                <li>Hold signs for 2-3 seconds for better detection</li>
+                <li>Detected words appear in the output panel</li>
+                <li>Enable 🔊 Text-to-Speech to hear translations</li>
+            </ol>
+        </div>
+
+        <div class="tips-section neumorphic">
+            <h3>⭐ Tips for Best Results</h3>
+            <ul class="tips-list">
+                <li>✓ Use bright, even lighting (avoid shadows)</li>
+                <li>✓ Position entire body in frame, not just hands</li>
+                <li>✓ Keep 3-5 feet distance from camera</li>
+                <li>✓ Move hands slowly and deliberately</li>
+                <li>✓ Keep hands visible and not blocked</li>
+                <li>✓ Let the camera adjust for 2 seconds before starting</li>
+            </ul>
+        </div>
+
+        <div class="skeleton-info neumorphic">
+            <h3>🦴 Hand Skeleton Visualization</h3>
+            <p>The app displays MediaPipe hand landmarks (21 points per hand) with connections:</p>
+            <ul class="skeleton-list">
+                <li><span class="skeleton-dot">●</span> <strong>Wrist</strong> - Base of hand</li>
+                <li><span class="skeleton-dot">●</span> <strong>Palm</strong> - Center points</li>
+                <li><span class="skeleton-dot">●</span> <strong>Fingers</strong> - 4 points per finger</li>
+            </ul>
+            <p class="skeleton-note">The yellow skeleton helps provide real-time feedback for pose adjustment.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const startBtn = document.getElementById('start-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const ttsToggle = document.getElementById('tts-toggle');
+    const videoStream = document.getElementById('video-stream');
+    const outputPanel = document.getElementById('translation-output');
+    const statusSpan = document.getElementById('detection-status');
+    const fpsCounter = document.getElementById('fps-counter');
+    const sequenceCounter = document.getElementById('sequence-counter');
+    
+    let isDetecting = false;
+    let detectedSignsArray = [];
+    let updateInterval;
+    let reconnectAttempts = 0;
+    const MAX_RECONNECT = 5;
+
+    function updateOutput() {
+        if (detectedSignsArray.length === 0) {
+            outputPanel.innerHTML = '<p class="placeholder-text">Detected signs appear here...</p>';
+        } else {
+            const signsText = detectedSignsArray.join(' → ');
+            outputPanel.innerHTML = `<p class="detected-text">${signsText}</p>`;
+        }
+    }
+
+    function speakText(text) {
+        if (!ttsToggle.checked) return;
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function initializeVideoStream() {
+        console.log('Initializing video stream...');
+        videoStream.src = '/video_feed?' + new Date().getTime();
+        
+        videoStream.onerror = function() {
+            console.warn('⚠ Video stream error. Attempting to reconnect...');
+            reconnectAttempts++;
+            
+            if (reconnectAttempts < MAX_RECONNECT && isDetecting) {
+                setTimeout(() => {
+                    console.log(`Reconnect attempt ${reconnectAttempts}/${MAX_RECONNECT}`);
+                    initializeVideoStream();
+                }, 1000);
+            } else if (reconnectAttempts >= MAX_RECONNECT) {
+                console.error('✗ Max reconnection attempts reached');
+                statusSpan.textContent = '✗ CONNECTION LOST';
+                statusSpan.className = 'status-badge';
+            }
+        };
+
+        videoStream.onload = function() {
+            console.log('✓ Video stream connected');
+            reconnectAttempts = 0;
+        };
+    }
+
+    function startDetection() {
+        fetch('/api/start_detection', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'started' || data.status === 'already_running') {
+                    isDetecting = true;
+                    reconnectAttempts = 0;
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    statusSpan.textContent = '● DETECTING';
+                    statusSpan.className = 'status-badge active';
+                    
+                    console.log('✓ Detection started');
+                    
+                    // Initialize video stream
+                    initializeVideoStream();
+                    
+                    // Polling for detected signs
+                    updateInterval = setInterval(updateDetectedSigns, 500);
+                }
+            })
+            .catch(err => {
+                console.error('✗ Error starting detection:', err);
+                statusSpan.textContent = '✗ ERROR';
+                statusSpan.className = 'status-badge';
+                alert('Failed to start detection. Check console for details.');
+            });
+    }
+
+    function stopDetection() {
+        fetch('/api/stop_detection', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                isDetecting = false;
+                reconnectAttempts = 0;
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                statusSpan.textContent = '● STOPPED';
+                statusSpan.className = 'status-badge';
+                videoStream.src = '';
+                
+                // Clear update interval
+                if (updateInterval) clearInterval(updateInterval);
+                
+                console.log('✓ Detection stopped');
+            })
+            .catch(err => {
+                console.error('✗ Error stopping detection:', err);
+                statusSpan.textContent = '✗ ERROR';
+                statusSpan.className = 'status-badge';
+            });
+    }
+
+    function updateDetectedSigns() {
+        fetch('/api/detected_signs')
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.signs !== undefined) {
+                    detectedSignsArray = data.signs;
+                    updateOutput();
+                }
+                if (data.fps !== undefined) {
+                    fpsCounter.textContent = data.fps;
+                }
+                if (data.running === false && isDetecting) {
+                    console.warn('⚠ Detection stopped unexpectedly');
+                }
+            })
+            .catch(err => {
+                console.warn('⚠ Error fetching signs:', err);
+                // Don't spam console with repeated errors
+            });
+    }
+
+    function clearOutput() {
+        fetch('/api/clear_signs', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                detectedSignsArray = [];
+                updateOutput();
+                console.log('✓ Detected signs cleared');
+            })
+            .catch(err => console.error('✗ Error clearing signs:', err));
+    }
+
+    startBtn.addEventListener('click', startDetection);
+    stopBtn.addEventListener('click', stopDetection);
+    clearBtn.addEventListener('click', clearOutput);
+    
+    ttsToggle.addEventListener('change', () => {
+        if (ttsToggle.checked && detectedSignsArray.length > 0) {
+            speakText(detectedSignsArray.join(' and '));
+        }
+    });
+
+    // Auto-speak new signs if TTS is enabled
+    let lastSpokenSign = '';
+    setInterval(() => {
+        if (ttsToggle.checked && detectedSignsArray.length > 0) {
+            const latestSign = detectedSignsArray[0];
+            if (latestSign !== lastSpokenSign) {
+                speakText(latestSign);
+                lastSpokenSign = latestSign;
+            }
+        }
+    }, 1000);
+
+    // Display initial state
+    console.log('Translator page loaded');
+    updateOutput();
+</script>
+{% endblock %}

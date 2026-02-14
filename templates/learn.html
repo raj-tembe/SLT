@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Learn - Sign Language Platform{% endblock %}
+
+{% block content %}
+<section class="learn-section">
+    <div class="container">
+        <h1 class="page-title">Learn Sign Language</h1>
+        <p class="page-subtitle">Master 250+ ASL signs with our comprehensive video library</p>
+
+        <div class="search-container neumorphic">
+            <div class="search-wrapper">
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    class="search-input" 
+                    placeholder="Search signs (e.g., 'hello', 'cat', 'happy')..."
+                >
+                <span class="search-icon">🔍</span>
+            </div>
+            <div class="search-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="animals">Animals</button>
+                <button class="filter-btn" data-filter="objects">Objects</button>
+                <button class="filter-btn" data-filter="emotions">Emotions</button>
+            </div>
+            <div id="results-count" class="results-count">Showing <strong>{{ signs|length }}</strong> signs</div>
+        </div>
+
+        <div id="signs-grid" class="signs-grid">
+            {% for sign in signs %}
+            <div class="sign-card neumorphic" data-sign="{{ sign }}">
+                <div class="sign-video-placeholder">
+                    <div class="video-thumbnail">
+                        <span class="play-icon">▶️</span>
+                        <div class="sign-index">{{ loop.index }}</div>
+                    </div>
+                </div>
+                <div class="sign-info">
+                    <h3 class="sign-name">{{ sign.capitalize() }}</h3>
+                    <p class="sign-note">Tap to view sign</p>
+                </div>
+                <div class="sign-rating">
+                    <span class="stars">⭐ 4.5</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div id="no-results" class="no-results" style="display: none;">
+            <p>No signs found matching your search. Try different keywords.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for sign details -->
+<div id="sign-modal" class="modal">
+    <div class="modal-content neumorphic">
+        <div class="modal-header">
+            <h2 id="modal-sign-name">Sign Name</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-video">
+                <div class="video-placeholder">
+                    <p>Video would be displayed here</p>
+                    <p style="font-size: 3em; margin-top: 20px;">🎥</p>
+                </div>
+            </div>
+            <div class="modal-details">
+                <div class="detail-group">
+                    <h4>Description</h4>
+                    <p id="modal-description">Sign description would appear here with detailed instructions on how to perform this sign.</p>
+                </div>
+                <div class="detail-group">
+                    <h4>Hand Shapes</h4>
+                    <p id="modal-hand-shapes">Information about hand shapes used in this sign.</p>
+                </div>
+                <div class="detail-group">
+                    <h4>Movement</h4>
+                    <p id="modal-movement">Description of the movement required.</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="practice-btn" class="btn btn-primary">Practice This Sign</button>
+            <button id="save-btn" class="btn btn-secondary">Save to My List</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const searchInput = document.getElementById('search-input');
+    const signsGrid = document.getElementById('signs-grid');
+    const noResults = document.getElementById('no-results');
+    const resultsCount = document.getElementById('results-count');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const signCards = document.querySelectorAll('.sign-card');
+    const modal = document.getElementById('sign-modal');
+    const modalClose = document.querySelector('.modal-close');
+    let currentFilter = 'all';
+
+    // Define sign categories
+    const animalSigns = ['dog', 'cat', 'bird', 'fish', 'cow', 'horse', 'monkey', 'lion', 'tiger', 'elephant', 'pig', 'duck', 'frog', 'goose', 'bee', 'mouse', 'rabbit', 'snake', 'donkey', 'alligator', 'chicken', 'owl', 'zebra', 'wolf', 'lion', 'giraffe'];
+    
+    const emotionSigns = ['happy', 'sad', 'angry', 'surprised', 'scared', 'sleepy', 'hungry', 'thirsty', 'sick', 'tired', 'mad', 'cry', 'smile', 'love', 'cute', 'beautiful', 'pretty'];
+    
+    const objectSigns = ['book', 'car', 'house', 'table', 'chair', 'pencil', 'pen', 'computer', 'phone', 'toy', 'ball', 'apple', 'pizza', 'milk', 'water', 'food', 'drink', 'clothes', 'shoe', 'hat', 'jacket', 'pants', 'shirt'];
+
+    function filterSigns() {
+        let visibleCount = 0;
+        const query = searchInput.value.toLowerCase();
+
+        for (const card of signCards) {
+            const signName = card.dataset.sign.toLowerCase();
+            const matchesSearch = signName.includes(query);
+            
+            let matchesCategory = true;
+            if (currentFilter !== 'all') {
+                let categoryList = [];
+                if (currentFilter === 'animals') categoryList = animalSigns;
+                else if (currentFilter === 'emotions') categoryList = emotionSigns;
+                else if (currentFilter === 'objects') categoryList = objectSigns;
+                
+                matchesCategory = categoryList.some(sign => signName.includes(sign.toLowerCase()));
+            }
+
+            if (matchesSearch && matchesCategory) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        }
+
+        if (visibleCount === 0) {
+            signsGrid.style.display = 'none';
+            noResults.style.display = 'block';
+        } else {
+            signsGrid.style.display = 'grid';
+            noResults.style.display = 'none';
+            resultsCount.innerHTML = `Showing <strong>${visibleCount}</strong> signs`;
+        }
+    }
+
+    // Search functionality
+    searchInput.addEventListener('input', filterSigns);
+
+    // Filter buttons
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            filterButtons.forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentFilter = e.target.dataset.filter;
+            filterSigns();
+        });
+    });
+
+    // Modal functionality
+    signCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const signName = card.dataset.sign;
+            document.getElementById('modal-sign-name').textContent = signName.toUpperCase();
+            document.getElementById('modal-description').textContent = `Learn how to sign "${signName}". Follow the hand movements and positions shown in the video.`;
+            document.getElementById('modal-hand-shapes').textContent = 'Various hand shapes are used. Watch the video for the specific hand configuration.';
+            document.getElementById('modal-movement').textContent = 'Observe the location, direction, and type of movement in the video.';
+            modal.style.display = 'flex';
+        });
+    });
+
+    modalClose.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Practice button
+    document.getElementById('practice-btn').addEventListener('click', () => {
+        alert('Starting practice mode for: ' + document.getElementById('modal-sign-name').textContent);
+    });
+
+    // Save button
+    document.getElementById('save-btn').addEventListener('click', () => {
+        alert('Added to your practice list!');
+    });
+
+    // Initialize grid display
+    filterSigns();
+</script>
+{% endblock %}

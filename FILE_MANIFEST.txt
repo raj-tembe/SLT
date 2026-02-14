@@ -1,0 +1,393 @@
+"""
+================================================================================
+SIGN LANGUAGE TRANSLATOR & LEARNING PLATFORM - FILE MANIFEST
+================================================================================
+
+PROJECT OVERVIEW:
+A modern Flask-based web application with Neumorphism UI for real-time sign
+language translation and interactive learning. Supports 250 ASL signs with
+search, filtering, text-to-speech, and camera integration.
+
+================================================================================
+BACKEND FILES
+================================================================================
+
+📄 app.py (Main Application)
+   - Flask application entry point
+   - Route definitions: /, /translator, /learn
+   - API endpoints for sign search
+   - Loads 250-sign mapping from JSON
+   
+📦 requirements.txt (Dependencies)
+   - Flask 3.0.0 (Web framework)
+   - Werkzeug 3.0.0 (WSGI utilities)
+   - Jinja2 3.1.2 (Templating engine)
+
+================================================================================
+FRONTEND - TEMPLATE FILES (templates/)
+================================================================================
+
+🎨 base.html (Base Template)
+   - Common HTML structure for all pages
+   - Navigation bar with links
+   - Footer with copyright
+   - Script and CSS imports
+   
+🏠 index.html (Home Page)
+   - Hero section with introduction
+   - Objectives grid (4 cards)
+   - Call-to-action section (2 main buttons)
+   - About section with tech stack
+   - Extends base.html
+   
+🎬 translator.html (Translator Interface)
+   - Video/webcam feed container
+   - Translation output panel
+   - TTS toggle switch
+   - Control buttons (Start/Stop/Clear)
+   - FPS and status monitoring
+   - Demo sign detection logic
+   
+📚 learn.html (Learning Hub)
+   - Searchable sign catalog
+   - 250 signs grid layout
+   - Category filters (All, Animals, Emotions, Objects)
+   - Modal popup for sign details
+   - Practice and Save functionality
+
+================================================================================
+FRONTEND - STYLING (static/css/)
+================================================================================
+
+🎨 style.css (Main Stylesheet)
+   - Complete Neumorphism design system
+   - CSS Variables for theme customization
+   - Responsive breakpoints (Desktop, Tablet, Mobile)
+   - 2000+ lines of production-quality CSS
+   - Features:
+     * Soft shadows and depth effects
+     * Smooth transitions and animations
+     * Rounded corners throughout
+     * Color scheme (greens, grays, whites)
+     * Form controls and buttons
+     * Grid layouts and flexbox
+     * Scrollbar styling
+     * Modal dialogs
+     * Cards and containers
+   
+DESIGN TOKENS:
+   - Primary Background: #e8eef2
+   - Secondary Background: #f0f4f8
+   - Accent Color: #4CAF50 (Green)
+   - Text Primary: #2d3436 (Dark Gray)
+   - Text Secondary: #636e72 (Light Gray)
+   - Border Radius: 20px (primary), 15px, 10px variants
+
+================================================================================
+FRONTEND - JAVASCRIPT (static/js/)
+================================================================================
+
+⚙️ app.js (Main JavaScript)
+   - App initialization and setup
+   - Browser feature detection
+   - Text-to-Speech (TTS) functionality
+   - Keyboard shortcuts (Ctrl+K, Esc)
+   - Analytics tracking
+   - Utility functions
+   - Performance optimization (lazy loading)
+   - Service Worker registration for PWA support
+
+FEATURES:
+   - Debounce function for search optimization
+   - HTML escaping for security
+   - Text formatting utilities
+   - Sign visibility helpers
+   - Action tracking system
+
+================================================================================
+STARTUP SCRIPTS
+================================================================================
+
+🚀 run.bat (Windows)
+   - Batch script for Windows users
+   - Creates virtual environment if needed
+   - Activates venv
+   - Installs dependencies
+   - Starts Flask app on port 5000
+   
+🚀 run.sh (macOS/Linux)
+   - Bash script for macOS and Linux
+   - Same functionality as run.bat
+   - Use: chmod +x run.sh && ./run.sh
+
+================================================================================
+DOCUMENTATION FILES
+================================================================================
+
+📖 QUICK_START.md
+   - 30-second setup instructions
+   - Platform-specific commands
+   - Troubleshooting guide
+   - Feature quick reference
+   - File structure overview
+   
+📖 README_FLASK.md (Comprehensive Guide)
+   - Project features and highlights
+   - Installation instructions
+   - Running the application
+   - Project structure details
+   - Page overview
+   - Configuration guide
+   - Future enhancements roadmap
+   - Browser support matrix
+   - Responsive breakpoints
+   - Contributing guidelines
+   - Development notes
+   - Troubleshooting section
+
+================================================================================
+EXISTING ML FILES (Legacy Integration)
+================================================================================
+
+🤖 INTERFACE.py
+   - Original real-time ASL detection interface
+   - Uses TensorFlow Lite model
+   - MediaPipe for landmark detection
+   - 250-sign classifier
+   - Ready for Django app integration
+
+📊 models/FINAL_ASL_250.h5
+   - Pre-trained TensorFlow model
+   - Optimized for 250 ASL signs
+   - Can be integrated via Flask API
+
+📁 src/
+   - backbone.py: Model architecture
+   - landmarks_extraction.py: MediaPipe utilities
+   - config.py: ML configuration
+   - sign_to_prediction_index_map.json: 250-sign mapping
+   - utils.py: Helper functions
+
+================================================================================
+DIRECTORY STRUCTURE
+================================================================================
+
+SLT/
+├── 📄 app.py                          ← MAIN ENTRY POINT
+├── 📄 requirements.txt
+├── 📄 run.bat                         ← Windows launcher
+├── 📄 run.sh                          ← Linux/Mac launcher
+│
+├── 📚 Documentation
+│   ├── README_FLASK.md               ← Full documentation
+│   ├── QUICK_START.md                ← Quick setup
+│   ├── Readme.md                     ← Original readme
+│   └── FILE_MANIFEST.txt             ← This file
+│
+├── 📁 templates/                      ← HTML Templates
+│   ├── base.html                     (Navigation/Footer)
+│   ├── index.html                    (Home Page)
+│   ├── translator.html               (Translator Interface)
+│   └── learn.html                    (Learning Hub)
+│
+├── 📁 static/                         ← Frontend Assets
+│   ├── css/
+│   │   └── style.css                 (2000+ lines, Neumorphism)
+│   └── js/
+│       └── app.js                    (Framework & utilities)
+│
+├── 📁 models/
+│   └── FINAL_ASL_250.h5             (ML Model - 250 signs)
+│
+├── 📁 src/                           (ML Backend)
+│   ├── backbone.py
+│   ├── landmarks_extraction.py
+│   ├── config.py
+│   ├── utils.py
+│   └── sign_to_prediction_index_map.json
+│
+├── 📁 .git/                          (Version control)
+└── 📄 INTERFACE.py                   (Legacy ML interface)
+
+================================================================================
+KEY STATISTICS
+================================================================================
+
+Codebase Size:
+- HTML Templates: ~700 lines (4 files)
+- CSS Styling: ~2000 lines (1 file)
+- JavaScript: ~400 lines (1 file)
+- Python Backend: ~50 lines (main app.py)
+- Total Frontend Code: ~3100 lines
+
+Features:
+- 3 Main Pages: Home, Translator, Learning Hub
+- 250 ASL Signs in catalog
+- 5+ Interactive Components
+- 4 Category Filters
+- Search functionality with real-time filtering
+- Text-to-Speech integration
+- Camera/Webcam support
+- Responsive design (3 breakpoints)
+
+Performance:
+- CSS Animations: Smooth 0.3s transitions
+- No external API dependencies (optional)
+- Lightweight and fast-loading
+- Mobile-optimized
+
+===============================================================================
+CUSTOMIZATION GUIDE
+===============================================================================
+
+1. COLORS (Edit style.css :root variables)
+   --bg-primary: #e8eef2           → Change background
+   --accent-color: #4CAF50         → Change accent (buttons, links)
+   --text-primary: #2d3436         → Change text color
+
+2. TYPOGRAPHY (Edit style.css)
+   font-family: 'Segoe UI'         → Change base font
+   font-size: [xxxx]               → Adjust sizes
+
+3. NEUMORPHISM EFFECT (Edit box-shadow values)
+   --shadow-medium: [...]          → Adjust shadow depth
+   --border-radius: 20px           → Adjust roundness
+
+4. BRANDING (Edit templates/base.html)
+   brand-title text                → Change app name
+   navbar colors                   → Customize header
+
+5. CONTENT (Edit templates/*.html)
+   Hero text, objectives, about    → Customize messaging
+   Sign catalog                    → Add real video URLs
+
+===============================================================================
+INTEGRATION POINTS
+===============================================================================
+
+1. ML Model Integration
+   - Location: app.py /translator route
+   - Current: Simulated detection
+   - Future: Connect INTERFACE.py backend
+   
+2. Video Content
+   - Location: learn.html - video-placeholder
+   - Current: Placeholder divs
+   - Future: Add actual ASL demonstration videos
+
+3. User Accounts (Future)
+   - Database: SQLAlchemy/PostgreSQL
+   - Auth: Flask-Login
+   - Storage: User progress, favorites
+
+4. Real-time Predictions
+   - WebSocket: Flask-SocketIO
+   - ML Backend: TensorFlow Lite inference
+   - Latency: Target <100ms
+
+================================================================================
+DEPLOYMENT NOTES
+================================================================================
+
+Development:
+- python app.py              → Development server (port 5000)
+- Debug mode enabled
+- Auto-reload on changes
+
+Production:
+- Use Gunicorn: gunicorn app:app
+- Use Nginx as reverse proxy
+- Enable HTTPS
+- Set debug=False
+- Use environment variables
+- Deploy to Heroku, AWS, or Docker
+
+Docker Ready:
+- Create Dockerfile with Python 3.9+
+- Install from requirements.txt
+- Expose port 5000
+- Run gunicorn server
+
+===============================================================================
+BROWSER COMPATIBILITY
+===============================================================================
+
+✅ Chrome 80+
+✅ Firefox 75+
+✅ Safari 13+
+✅ Edge 80+
+❌ IE 11 (Not supported)
+
+Features Requiring Modern Browser:
+- getUserMedia (Camera) → Chrome 21+, Firefox 36+
+- SpeechSynthesis (TTS) → Chrome 25+, Firefox 49+
+- CSS Grid → Chrome 57+, Firefox 52+
+
+===============================================================================
+FUTURE ROADMAP
+================================================================================
+
+Phase 1 (Current): Foundation
+✅ Flask web application
+✅ 3-page layout
+✅ Neumorphism UI
+✅ 250-sign catalog
+✅ Search functionality
+
+Phase 2 (Next): ML Integration
+⏳ Real ASL detection
+⏳ Live model predictions
+⏳ Accuracy metrics
+⏳ Performance optimization
+
+Phase 3 (Future): User Features
+⏳ User accounts & authentication
+⏳ Progress tracking
+⏳ Custom sign lists
+⏳ Video recordings
+⏳ Practice sessions
+
+Phase 4 (Advanced): Expansion
+⏳ Mobile app (React Native)
+⏳ Multi-language support
+⏳ Advanced analytics
+⏳ Community features
+⏳ API for third-party integration
+
+================================================================================
+SUPPORT & DOCUMENTATION
+================================================================================
+
+README_FLASK.md → Full project documentation
+QUICK_START.md → 30-second setup guide
+app.py → Code comments and docstrings
+Flask Docs → https://flask.palletsprojects.com/
+CSS Tips → See style.css :root section
+
+================================================================================
+VERSION HISTORY
+================================================================================
+
+Version 1.0 (February 2026)
+- Initial Flask application
+- 3-page layout (Home, Translator, Learn)
+- Neumorphism UI with 250+ CSS rules
+- 250 ASL sign catalog
+- Search and filter functionality
+- Text-to-speech integration
+- Responsive mobile design
+- Complete JavaScript framework
+
+================================================================================
+LICENSE & ATTRIBUTION
+================================================================================
+
+Created: February 2026
+Purpose: Sign Language Accessibility & Education
+Technology Stack: Flask, HTML5, CSS3, JavaScript, Jinja2
+Basis: FINAL_ASL_250.h5 ML Model & INTERFACE.py reference
+
+================================================================================
+END OF MANIFEST
+================================================================================
+"""

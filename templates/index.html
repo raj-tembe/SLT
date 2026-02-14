@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Sign Language Translator{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-container">
+        <div class="hero-content">
+            <h1 class="hero-title">Sign Language Translator</h1>
+            <p class="hero-subtitle">Breaking Down Language Barriers with AI & Machine Learning</p>
+            <p class="hero-description">
+                Welcome to our cutting-edge Sign Language Translation platform. 
+                Real-time translation, comprehensive learning resources, and accessibility for everyone.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="objectives-section">
+    <div class="container">
+        <h2 class="section-title">Project Objectives</h2>
+        <div class="objectives-grid">
+            <div class="objective-card neumorphic">
+                <div class="objective-icon">🎯</div>
+                <h3>Accurate Translation</h3>
+                <p>Leverage advanced AI to translate ASL signs in real-time with high accuracy</p>
+            </div>
+            <div class="objective-card neumorphic">
+                <div class="objective-icon">📚</div>
+                <h3>Education Hub</h3>
+                <p>Learn 250+ ASL signs with interactive videos and detailed instructions</p>
+            </div>
+            <div class="objective-card neumorphic">
+                <div class="objective-icon">♿</div>
+                <h3>Accessibility</h3>
+                <p>Make communication accessible and inclusive for the deaf community</p>
+            </div>
+            <div class="objective-card neumorphic">
+                <div class="objective-icon">🚀</div>
+                <h3>Innovation</h3>
+                <p>Cutting-edge technology powered by TensorFlow and MediaPipe</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <h2 class="section-title">Get Started</h2>
+        <div class="cta-grid">
+            <div class="cta-card neumorphic">
+                <div class="cta-icon">🎬</div>
+                <h3>Real-Time Translator</h3>
+                <p>Translate sign language from your webcam in real-time. Perfect for communication assistance.</p>
+                <a href="{{ url_for('translator') }}" class="btn btn-primary">Open Translator</a>
+            </div>
+            <div class="cta-card neumorphic">
+                <div class="cta-icon">📖</div>
+                <h3>Learn Sign Language</h3>
+                <p>Master 250 ASL signs with our comprehensive video library. Learn at your own pace.</p>
+                <a href="{{ url_for('learn') }}" class="btn btn-secondary">Start Learning</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="container">
+        <h2 class="section-title">About This Project</h2>
+        <div class="about-content neumorphic">
+            <div class="about-text">
+                <h3>Technology Stack</h3>
+                <ul class="tech-list">
+                    <li><strong>Backend:</strong> Python Flask</li>
+                    <li><strong>ML Framework:</strong> TensorFlow Lite, MediaPipe</li>
+                    <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript</li>
+                    <li><strong>UI Design:</strong> Neumorphism (Soft UI)</li>
+                    <li><strong>Model:</strong> 250-sign ASL Classifier (TFLite optimized)</li>
+                </ul>
+            </div>
+            <div class="about-text">
+                <h3>Author & Developer</h3>
+                <p>This platform is built with ❤️ for the deaf community and sign language enthusiasts. 
+                It combines state-of-the-art machine learning with an intuitive, modern user interface.</p>
+                <p>Developed with a focus on accessibility, ease of use, and practical applicability.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
