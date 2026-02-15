@@ -720,6 +720,19 @@ body {
     font-size: 3rem;
     opacity: 0.7;
     transition: var(--transition);
+    position: relative;
+    z-index: 10;
+}
+
+.thumbnail-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 15px;
+    background: var(--bg-secondary);
 }
 
 .sign-card:hover .play-icon {
@@ -799,7 +812,7 @@ body {
     background: var(--bg-primary);
     border-radius: var(--border-radius);
     max-width: 1400px;
-    width: 95%;
+    width: 90%;
     max-height: 90vh;
     overflow-y: auto;
     animation: slideUp 0.3s ease;

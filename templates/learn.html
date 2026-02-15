@@ -32,7 +32,11 @@
             <div class="sign-card neumorphic" data-sign="{{ sign }}">
                 <div class="sign-video-placeholder">
                     <div class="video-thumbnail">
-                        <span class="play-icon">▶️</span>
+                        <video class="thumbnail-video" muted>
+                            <source src="/static/videos/{{ sign.lower() }}.mp4" type="video/mp4">
+                            Video not available
+                        </video>
+                        <span class="play-icon">▶</span>
                         <div class="sign-index">{{ loop.index }}</div>
                     </div>
                 </div>
@@ -40,9 +44,9 @@
                     <h3 class="sign-name">{{ sign.capitalize() }}</h3>
                     <p class="sign-note">Tap to view sign</p>
                 </div>
-                <div class="sign-rating">
+                <!-- <div class="sign-rating">
                     <span class="stars">⭐ 4.5</span>
-                </div>
+                </div> -->
             </div>
             {% endfor %}
         </div>
@@ -83,10 +87,10 @@
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
+        <!-- <div class="modal-footer">
             <button id="practice-btn" class="btn btn-primary">Practice This Sign</button>
             <button id="save-btn" class="btn btn-secondary">Save to My List</button>
-        </div>
+        </div> -->
     </div>
 </div>
 {% endblock %}
@@ -109,6 +113,46 @@
     const emotionSigns = ['happy', 'sad', 'angry', 'surprised', 'scared', 'sleepy', 'hungry', 'thirsty', 'sick', 'tired', 'mad', 'cry', 'smile', 'love', 'cute', 'beautiful', 'pretty'];
     
     const objectSigns = ['book', 'car', 'house', 'table', 'chair', 'pencil', 'pen', 'computer', 'phone', 'toy', 'ball', 'apple', 'pizza', 'milk', 'water', 'food', 'drink', 'clothes', 'shoe', 'hat', 'jacket', 'pants', 'shirt'];
+
+    // Thumbnail Video Functionality
+    function initializeThumbnailVideos() {
+        const thumbnailVideos = document.querySelectorAll('.thumbnail-video');
+        
+        thumbnailVideos.forEach(video => {
+            // Load first frame of video when metadata is loaded
+            video.addEventListener('loadedmetadata', function() {
+                // Seek to a small value to load the first frame
+                this.currentTime = 0;
+                this.muted = true;
+                this.playsInline = true;
+            }, { once: true });
+
+            // Request to load video metadata
+            video.load();
+
+            // Get parent sign card for hover effects
+            const signCard = video.closest('.sign-card');
+            const playIcon = signCard.querySelector('.play-icon');
+
+            // Play video preview on hover
+            signCard.addEventListener('mouseenter', () => {
+                video.currentTime = 0;
+                // Attempt to play
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log('Video autoplay prevented:', error);
+                    });
+                }
+            });
+
+            // Pause video on mouse leave
+            signCard.addEventListener('mouseleave', () => {
+                video.pause();
+                video.currentTime = 0;
+            });
+        });
+    }
 
     function filterSigns() {
         let visibleCount = 0;
@@ -143,6 +187,8 @@
             signsGrid.style.display = 'grid';
             noResults.style.display = 'none';
             resultsCount.innerHTML = `Showing <strong>${visibleCount}</strong> signs`;
+            // Reinitialize thumbnails for visible cards
+            initializeThumbnailVideos();
         }
     }
 
@@ -197,6 +243,9 @@
     document.getElementById('save-btn').addEventListener('click', () => {
         alert('Added to your practice list!');
     });
+
+    // Initialize thumbnail videos after DOM is ready
+    initializeThumbnailVideos();
 
     // Initialize grid display
     filterSigns();
