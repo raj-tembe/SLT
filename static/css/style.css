@@ -14,8 +14,8 @@
     --bg-secondary: #f0f4f8;
     --text-primary: #2d3436;
     --text-secondary: #636e72;
-    --accent-color: #4CAF50;
-    --accent-light: #81C784;
+    --accent-color: #8B5CF6;
+    --accent-light: #C4B5FD;
     --danger-color: #f44336;
     --warning-color: #ff9800;
     --shadow-light: 2px 2px 5px rgba(0, 0, 0, 0.05);
@@ -83,13 +83,13 @@ body {
 }
 
 .nav-link:hover {
-    background: rgba(76, 175, 80, 0.1);
+    background: rgba(139, 92, 246, 0.1);
     color: var(--accent-color);
 }
 
 .nav-link.active {
     color: var(--accent-color);
-    background: rgba(76, 175, 80, 0.15);
+    background: rgba(139, 92, 246, 0.15);
     box-shadow: var(--shadow-light);
 }
 
@@ -272,7 +272,7 @@ body {
 }
 
 .btn-outline:hover {
-    background: rgba(76, 175, 80, 0.1);
+    background: rgba(139, 92, 246, 0.1);
     box-shadow: var(--shadow-medium);
 }
 
@@ -283,7 +283,7 @@ body {
 
 .translator-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 2rem;
     margin-bottom: 3rem;
 }
@@ -291,6 +291,10 @@ body {
 .video-container {
     display: flex;
     flex-direction: column;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+    align-self: center;
 }
 
 .video-wrapper {
@@ -374,7 +378,7 @@ body {
 }
 
 .status-badge.active {
-    background: rgba(76, 175, 80, 0.15);
+    background: rgba(139, 92, 246, 0.15);
     color: var(--accent-color);
 }
 
@@ -727,7 +731,7 @@ body {
     position: absolute;
     top: 10px;
     right: 10px;
-    background: rgba(76, 175, 80, 0.9);
+    background: rgba(139, 92, 246, 0.9);
     color: white;
     padding: 0.5rem 0.8rem;
     border-radius: 10px;

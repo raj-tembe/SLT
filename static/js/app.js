@@ -53,7 +53,7 @@ function initializeTTS() {
         window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.9;
+        utterance.rate = 0.5; // Slower rate for better clarity
         utterance.pitch = 1.0;
         utterance.volume = 1.0;
         utterance.lang = 'en-US';

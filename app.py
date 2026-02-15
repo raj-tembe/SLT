@@ -156,7 +156,9 @@ class VideoStreamHandler:
                             self.sequence_data = self.sequence_data[1:]
                     
                     # Add to detected signs
-                    if sign != "" and sign not in self.detected_signs:
+                    # Only prevent duplicate if it's the most recent sign (not if it's anywhere in history)
+                    last_sign = self.detected_signs[0] if len(self.detected_signs) > 0 else None
+                    if sign != "" and sign != last_sign:
                         with self.lock:
                             self.detected_signs.appendleft(sign)
                     

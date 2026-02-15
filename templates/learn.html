@@ -62,9 +62,10 @@
         </div>
         <div class="modal-body">
             <div class="modal-video">
-                <div class="video-placeholder">
-                    <p>Video would be displayed here</p>
-                    <p style="font-size: 3em; margin-top: 20px;">🎥</p>
+                    <video id="modal-video" width="100%" controls>
+                        <source id="modal-video-source" src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
                 </div>
             </div>
             <div class="modal-details">
@@ -166,6 +167,13 @@
             document.getElementById('modal-description').textContent = `Learn how to sign "${signName}". Follow the hand movements and positions shown in the video.`;
             document.getElementById('modal-hand-shapes').textContent = 'Various hand shapes are used. Watch the video for the specific hand configuration.';
             document.getElementById('modal-movement').textContent = 'Observe the location, direction, and type of movement in the video.';
+            
+            // Set video source dynamically
+            const videoSource = document.getElementById('modal-video-source');
+            const videoElement = document.getElementById('modal-video');
+            videoSource.src = `/static/videos/${signName.toLowerCase()}.mp4`;
+            videoElement.load();
+            
             modal.style.display = 'flex';
         });
     });
