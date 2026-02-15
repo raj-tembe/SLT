@@ -10,26 +10,26 @@
 
 /* ===== VARIABLES ===== */
 :root {
-    --bg-primary: #e8eef2;
-    --bg-secondary: #f0f4f8;
-    --text-primary: #2d3436;
-    --text-secondary: #636e72;
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #f0f0f0;
+    --text-secondary: #b0b0b0;
     --accent-color: #8B5CF6;
     --accent-light: #C4B5FD;
-    --danger-color: #f44336;
-    --warning-color: #ff9800;
-    --shadow-light: 2px 2px 5px rgba(0, 0, 0, 0.05);
-    --shadow-medium: 4px 4px 10px rgba(0, 0, 0, 0.1);
-    --shadow-dark: 8px 8px 20px rgba(0, 0, 0, 0.15);
-    --shadow-inset: inset 2px 2px 5px rgba(255, 255, 255, 0.7),
-                    inset -2px -2px 5px rgba(0, 0, 0, 0.1);
+    --danger-color: #ff6b6b;
+    --warning-color: #ffa500;
+    --shadow-light: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 4px 4px 10px rgba(0, 0, 0, 0.5);
+    --shadow-dark: 8px 8px 20px rgba(0, 0, 0, 0.7);
+    --shadow-inset: inset 2px 2px 5px rgba(255, 255, 255, 0.05),
+                    inset -2px -2px 5px rgba(0, 0, 0, 0.9);
     --border-radius: 20px;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #e8eef2 0%, #f0f4f8 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
@@ -134,7 +134,7 @@ body {
 .hero-container {
     text-align: center;
     padding: 3rem 2rem;
-    background: linear-gradient(135deg, #e8eef2 0%, #f0f4f8 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-medium);
 }
@@ -349,7 +349,7 @@ body {
 
 .stream-status {
     padding-top: 1rem;
-    border-top: 2px solid rgba(45, 52, 54, 0.1);
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -421,7 +421,7 @@ body {
 .toggle-switch {
     width: 50px;
     height: 26px;
-    background: #ccc;
+    background: #555;
     border-radius: 13px;
     position: relative;
     transition: var(--transition);
@@ -433,7 +433,7 @@ body {
     position: absolute;
     width: 22px;
     height: 22px;
-    background: white;
+    background: #2d2d2d;
     border-radius: 50%;
     top: 2px;
     left: 2px;
@@ -478,7 +478,7 @@ body {
     grid-template-columns: 1fr;
     gap: 1rem;
     padding-top: 1rem;
-    border-top: 2px solid rgba(45, 52, 54, 0.1);
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .info-item {
@@ -574,7 +574,7 @@ body {
     color: var(--text-secondary);
     font-size: 0.95rem;
     font-style: italic;
-    background: rgba(227, 224, 113, 0.1);
+    background: rgba(227, 224, 113, 0.15);
     padding: 1rem;
     border-radius: 10px;
     border-left: 3px solid #e3e047;
@@ -611,7 +611,7 @@ body {
 .tech-list li {
     padding: 0.8rem 0;
     color: var(--text-secondary);
-    border-bottom: 1px solid rgba(45, 52, 54, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tech-list strong {
@@ -648,7 +648,7 @@ body {
 .search-input:focus {
     outline: none;
     box-shadow: var(--shadow-medium);
-    background: white;
+    background: #3a3a3a;
 }
 
 .search-icon {
@@ -798,8 +798,8 @@ body {
 .modal-content {
     background: var(--bg-primary);
     border-radius: var(--border-radius);
-    max-width: 700px;
-    width: 90%;
+    max-width: 1400px;
+    width: 95%;
     max-height: 90vh;
     overflow-y: auto;
     animation: slideUp 0.3s ease;
@@ -821,7 +821,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 2rem;
-    border-bottom: 1px solid rgba(45, 52, 54, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-header h2 {
@@ -846,11 +846,13 @@ body {
     padding: 2rem;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    gap: 3rem;
 }
 
 .modal-video {
     aspect-ratio: 1;
+    min-width: 700px;
+    min-height: 700px;
 }
 
 .video-placeholder {
@@ -885,7 +887,7 @@ body {
 
 .modal-footer {
     padding: 1.5rem 2rem;
-    border-top: 1px solid rgba(45, 52, 54, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     gap: 1rem;
     justify-content: flex-end;
