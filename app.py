@@ -2,7 +2,7 @@
 from flask import Flask, render_template, jsonify, request, Response
 from src.backbone import TFLiteModel, get_model
 from src.landmarks_extraction import mediapipe_detection, draw, extract_coordinates, load_json_file
-from src.config import SEQ_LEN, THRESH_HOLD
+from src.config import SEQ_LEN, THRESH_HOLD, FRAME_SKIP, PREDICTION_SKIP, USE_GPU, USE_MIXED_PRECISION, CAMERA_WIDTH, CAMERA_HEIGHT, JPEG_QUALITY
 import numpy as np
 import cv2
 import time
@@ -13,6 +13,37 @@ import threading
 from collections import deque
 from queue import Queue
 import traceback
+
+# =========== GPU SETUP - RUN BEFORE TF IMPORTS ===========
+try:
+    import tensorflow as tf
+    import os
+    # Suppress TF warnings
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+    
+    # Configure GPU memory growth
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus and USE_GPU:
+        try:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+            print(f"[GPU] {len(gpus)} GPU(s) detected - Memory growth enabled")
+        except RuntimeError as e:
+            print(f"[GPU] Memory growth error: {e}")
+    else:
+        print("[CPU] No GPU detected, using CPU for inference")
+    
+    # Enable mixed precision for faster inference (only if GPU available)
+    if USE_MIXED_PRECISION and gpus:
+        try:
+            policy = tf.keras.mixed_precision.Policy('mixed_float16')
+            tf.keras.mixed_precision.set_global_policy(policy)
+            print("[GPU] Mixed precision (float16) enabled for faster inference")
+        except Exception as e:
+            print(f"[GPU] Mixed precision info: {e}")
+    
+except Exception as e:
+    print(f"[GPU] TensorFlow config error: {e}")
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -42,9 +73,9 @@ models = [get_model() for _ in models_path]
 for model, path in zip(models, models_path):
     try:
         model.load_weights(path)
-        print(f"✓ Model loaded successfully: {path}")
+        print(f"[OK] Model loaded successfully: {path}")
     except Exception as e:
-        print(f"⚠ Could not load model weights: {e}")
+        print(f"[ERROR] Could not load model weights: {e}")
 
 # TFLite model wrapper
 tflite_keras_model = TFLiteModel(islr_models=models)
@@ -63,48 +94,50 @@ class VideoStreamHandler:
         self.last_time = time.time()
         self.camera_thread = None
         self.holistic = None
-        self.frame_skip = 1  # Process every Nth frame (1=all, 2=every other)
+        self.frame_skip = FRAME_SKIP  # Skip frames for better FPS
+        self.prediction_skip = PREDICTION_SKIP  # Skip predictions
+        self.prediction_count = 0  # Counter for prediction skipping
         
     def camera_capture_thread(self):
         """Separate thread for camera capture and processing"""
         try:
-            print("📷 Camera thread started...")
+            print("[CAMERA] Thread started...")
             self.cap = cv2.VideoCapture(0)
             
             if not self.cap.isOpened():
-                print("✗ Camera not available")
+                print("[ERROR] Camera not available")
                 self.is_running = False
                 return
             
-            # Set camera resolution
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            # Set camera resolution - LOWER for better FPS
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
             self.cap.set(cv2.CAP_PROP_FPS, 30)
             self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
             
-            print("✓ Initializing MediaPipe holistic...")
+            print("[INIT] Initializing MediaPipe holistic...")
             try:
-                # Initialize MediaPipe holistic with timeout
+                # Initialize MediaPipe holistic - model_complexity=0 for speed
                 self.holistic = mp_holistic.Holistic(
                     min_detection_confidence=0.5,
                     min_tracking_confidence=0.5,
                     model_complexity=0
                 )
-                print("✓ MediaPipe holistic initialized")
+                print("[OK] MediaPipe holistic initialized")
             except Exception as e:
-                print(f"✗ Failed to initialize MediaPipe: {e}")
+                print(f"[ERROR] Failed to initialize MediaPipe: {e}")
                 self.is_running = False
                 return
             
-            print("✓ Camera initialized, processing frames...")
+            print("[OK] Camera initialized, processing frames...")
             frame_idx = 0
             
             while self.is_running:
                 try:
                     ret, frame = self.cap.read()
                     if not ret:
-                        print("⚠ Failed to read frame")
-                        time.sleep(0.1)
+                        print("[WARN] Failed to read frame")
+                        time.sleep(0.01)
                         continue
                     
                     frame_idx += 1
@@ -116,11 +149,11 @@ class VideoStreamHandler:
                             image, results = mediapipe_detection(frame, self.holistic)
                             draw(image, results)
                         except Exception as e:
-                            print(f"⚠ Detection error: {e}")
+                            print(f"[WARN] Detection error: {e}")
                             image = frame
                             results = None
                     else:
-                        image = frame.copy()
+                        image = frame
                         results = None
                     
                     # Extract landmarks only when processing
@@ -137,8 +170,8 @@ class VideoStreamHandler:
                     
                     sign = ""
                     
-                    # Generate prediction every SEQ_LEN frames
-                    if len(self.sequence_data) >= SEQ_LEN:
+                    # Generate prediction every SEQ_LEN frames (or skip some for better FPS)
+                    if len(self.sequence_data) >= SEQ_LEN and self.prediction_count % PREDICTION_SKIP == 0:
                         try:
                             seq_to_predict = np.array(self.sequence_data[-SEQ_LEN:], dtype=np.float32)
                             prediction = tflite_keras_model(seq_to_predict)["outputs"]
@@ -147,13 +180,15 @@ class VideoStreamHandler:
                             if pred_max > THRESH_HOLD:
                                 sign_idx = int(np.argmax(prediction.numpy(), axis=-1))
                                 sign = decoder(sign_idx)
-                                print(f"✓ Detected: {sign} (confidence: {pred_max:.2f})")
+                                print(f"[DETECT] {sign} (confidence: {pred_max:.2f})")
                             
                             # Slide window
                             self.sequence_data = self.sequence_data[SEQ_LEN//2:]
                         except Exception as e:
-                            print(f"⚠ Prediction error: {e}")
+                            print(f"[WARN] Prediction error: {e}")
                             self.sequence_data = self.sequence_data[1:]
+                    
+                    self.prediction_count += 1
                     
                     # Add to detected signs
                     # Only prevent duplicate if it's the most recent sign (not if it's anywhere in history)
@@ -184,7 +219,7 @@ class VideoStreamHandler:
                     
                     # Encode and queue frame
                     try:
-                        ret, buffer = cv2.imencode('.jpg', image, [cv2.IMWRITE_JPEG_QUALITY, 60])
+                        ret, buffer = cv2.imencode('.jpg', image, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
                         if ret:
                             frame_bytes = buffer.tobytes()
                             # Non-blocking put
@@ -194,31 +229,31 @@ class VideoStreamHandler:
                                 # Queue full, skip this frame
                                 pass
                     except Exception as e:
-                        print(f"⚠ Encode error: {e}")
+                        print(f"[WARN] Encode error: {e}")
                     
                     # Minimal sleep for CPU relief
                     time.sleep(0.0001)
                     
                 except Exception as e:
-                    print(f"⚠ Frame processing error: {e}")
+                    print(f"[WARN] Frame processing error: {e}")
                     traceback.print_exc()
-                    time.sleep(0.1)
+                    time.sleep(0.01)
         
         except Exception as e:
-            print(f"✗ Camera thread fatal error: {e}")
+            print(f"[FATAL] Camera thread error: {e}")
             traceback.print_exc()
         finally:
-            print("Cleaning up camera thread...")
+            print("[CLEANUP] Cleaning up camera thread...")
             if self.cap:
                 self.cap.release()
             if self.holistic:
                 self.holistic.close()
             self.is_running = False
-            print("✓ Camera thread cleaned up")
+            print("[OK] Camera thread cleaned up")
     
     def generate_frames(self):
         """Generate MJPEG frames from queue"""
-        print("📡 Starting frame streaming...")
+        print("[STREAM] Starting frame streaming...")
         frame_timeout_count = 0
         
         while self.is_running:
@@ -231,7 +266,7 @@ class VideoStreamHandler:
                     # No frame available
                     frame_timeout_count += 1
                     if frame_timeout_count > 3:
-                        print("⚠ No frames from camera for 6+ seconds")
+                        print("[WARN] No frames from camera for 6+ seconds")
                     continue
                 
                 # Yield frame in MJPEG format
@@ -241,13 +276,13 @@ class VideoStreamHandler:
                        frame_bytes + b'\r\n')
                 
             except GeneratorExit:
-                print("✓ Client disconnected from stream")
+                print("[OK] Client disconnected from stream")
                 break
             except Exception as e:
-                print(f"⚠ Stream error: {e}")
-                time.sleep(0.1)
+                print(f"[WARN] Stream error: {e}")
+                time.sleep(0.01)
         
-        print("✓ Frame streaming ended")
+        print("[OK] Frame streaming ended")
     
     def start(self):
         """Start camera capture thread"""

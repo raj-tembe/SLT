@@ -1,13 +1,30 @@
 import numpy as np
 
+# =========== DETECTION & PREDICTION CONFIG ===========
 THRESH_HOLD = 0.5
-
 SEQ_LEN = 30
 ROWS_PER_FRAME = 543
 MAX_LEN = 384
 CROP_LEN = MAX_LEN
-NUM_CLASSES  = 250
+NUM_CLASSES = 250
 PAD = -100.
+
+# =========== PERFORMANCE OPTIMIZATION ===========
+# Process every Nth frame (1=all, 2=every other). Increase if GPU is bottleneck
+FRAME_SKIP = 1
+# Predict every Nth sequence (1=every seq, 2=every other). Increase for better FPS
+PREDICTION_SKIP = 1
+# Enable TensorFlow GPU optimization
+USE_GPU = True
+# Use mixed precision (float16) for faster inference
+USE_MIXED_PRECISION = True
+# Camera input resolution - lower = faster
+CAMERA_WIDTH = 640
+CAMERA_HEIGHT = 480
+# JPEG quality for web streaming (lower = faster encoding)
+JPEG_QUALITY = 35
+# Inference batch size
+INFERENCE_BATCH = 1
 
 NOSE=[
     1,2,98,327

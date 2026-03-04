@@ -1,11 +1,35 @@
 ##JAI SHREE RAM
 from src.backbone import TFLiteModel, get_model
 from src.landmarks_extraction import mediapipe_detection, draw, extract_coordinates, load_json_file 
-from src.config import SEQ_LEN, THRESH_HOLD
+from src.config import SEQ_LEN, THRESH_HOLD, USE_GPU, USE_MIXED_PRECISION, CAMERA_WIDTH, CAMERA_HEIGHT
 import numpy as np
 import cv2
 import time
 import mediapipe as mp
+
+# =========== GPU SETUP ===========
+try:
+    import tensorflow as tf
+    import os
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+    
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus and USE_GPU:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        print(f"[GPU] {len(gpus)} GPU(s) detected - Memory growth enabled")
+    else:
+        print("[CPU] No GPU detected, using CPU")
+    
+    if USE_MIXED_PRECISION and gpus:
+        try:
+            policy = tf.keras.mixed_precision.Policy('mixed_float16')
+            tf.keras.mixed_precision.set_global_policy(policy)
+            print("[GPU] Mixed precision (float16) enabled")
+        except Exception as e:
+            print(f"[GPU] Mixed precision info: {e}")
+except Exception as e:
+    print(f"[GPU] Config error: {e}")
 
 mp_holistic = mp.solutions.holistic 
 mp_drawing = mp.solutions.drawing_utils
@@ -32,7 +56,7 @@ def real_time_asl():
     
     start = time.time()
     
-    with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+    with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5, model_complexity=0) as holistic:
         # The main loop for the mediapipe detection.
         while cap.isOpened():
             ret, frame = cap.read()
@@ -64,28 +88,15 @@ def real_time_asl():
             cv2.putText(image, f"{len(sequence_data)}", (3, 35),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
             
-            image = cv2.flip(image, 1)
-            
             # Insert the sign in the result set if sign is not empty.
             if sign != "" and decoder(sign) not in res:
                 res.insert(0, decoder(sign))
             
-            # Get the height and width of the image
-            height, width = image.shape[0], image.shape[1]
-
-            # Create a white column
-            white_column = np.ones((height // 8, width, 3), dtype='uint8') * 255
-
-            # Flip the image vertically
-            image = cv2.flip(image, 1)
-            
-            # Concatenate the white column to the image
-            image = np.concatenate((white_column, image), axis=0)
-            
-            cv2.putText(image, f"{', '.join(str(x) for x in res)}", (3, 65),
-                                cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 0, 0), 2, cv2.LINE_AA)
+            # Display detected signs directly on image (lightweight)
+            cv2.putText(image, f"Signs: {', '.join(str(x) for x in res[:5])}", (5, 60),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
                             
-            cv2.imshow('Webcam Feed',image)
+            cv2.imshow('Webcam Feed', image)
             
             # Wait for a key to be pressed.
             if cv2.waitKey(10) & 0xFF == ord("q"):
