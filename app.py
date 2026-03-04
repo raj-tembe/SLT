@@ -337,6 +337,16 @@ def learn():
     """Learning hub page route"""
     return render_template('learn.html', signs=signs_list)
 
+@app.route('/learn/video')
+def learn_video():
+    """Learn from video sub-page route"""
+    return render_template('learn_video.html', signs=signs_list)
+
+@app.route('/learn/image')
+def learn_image():
+    """Learn from image sub-page route"""
+    return render_template('learn_image.html', signs=signs_list)
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
@@ -476,7 +486,7 @@ if __name__ == '__main__':
         # use_reloader=False to prevent double threading
         # debug=False to prevent debug mode issues
         app.run(
-            debug=False,
+            debug=True,
             host='0.0.0.0',
             port=5000,
             threaded=True,

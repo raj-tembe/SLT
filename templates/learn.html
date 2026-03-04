@@ -3,251 +3,167 @@
 {% block title %}Learn - Sign Language Platform{% endblock %}
 
 {% block content %}
-<section class="learn-section">
+<section class="learn-hub-section">
     <div class="container">
-        <h1 class="page-title">Learn Sign Language</h1>
-        <p class="page-subtitle">Master 250+ ASL signs with our comprehensive video library</p>
+        <!-- Header Section -->
+        <div class="learn-hub-header">
+            <h1 class="page-title">Learn Sign Language</h1>
+            <p class="page-subtitle">Master 250+ ASL signs with our comprehensive learning platform</p>
+        </div>
 
-        <div class="search-container neumorphic">
+        <!-- Main Search Box -->
+        <div class="hub-search-container neumorphic">
             <div class="search-wrapper">
                 <input 
                     type="text" 
-                    id="search-input" 
+                    id="hub-search-input" 
                     class="search-input" 
-                    placeholder="Search signs (e.g., 'hello', 'cat', 'happy')..."
+                    placeholder="Search videos & images (e.g., 'hello', 'cat', 'happy')..."
                 >
-                <span class="search-icon">🔍</span>
+                <button id="hub-search-btn" class="search-btn">🔍</button>
             </div>
-            <div class="search-filters">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="animals">Animals</button>
-                <button class="filter-btn" data-filter="objects">Objects</button>
-                <button class="filter-btn" data-filter="emotions">Emotions</button>
-            </div>
-            <div id="results-count" class="results-count">Showing <strong>{{ signs|length }}</strong> signs</div>
+            <p class="search-hint">💡 Tip: Press Enter or click search to find signs across both video and image resources</p>
         </div>
 
-        <div id="signs-grid" class="signs-grid">
-            {% for sign in signs %}
-            <div class="sign-card neumorphic" data-sign="{{ sign }}">
-                <div class="sign-video-placeholder">
-                    <div class="video-thumbnail">
-                        <video class="thumbnail-video" muted>
-                            <source src="/static/videos/{{ sign.lower() }}.mp4" type="video/mp4">
-                            Video not available
-                        </video>
-                        <span class="play-icon">▶</span>
-                        <div class="sign-index">{{ loop.index }}</div>
-                    </div>
+        <!-- Navigation Cards Section -->
+        <div class="learn-options-section">
+            <h2 class="section-heading">Choose Your Learning Method</h2>
+            
+            <div class="learn-options-grid">
+                <!-- Video Learning Card -->
+                <div class="learn-option-card video-card neumorphic" data-type="video">
+                    <div class="card-icon">📹</div>
+                    <h3 class="card-title">Learn from Videos</h3>
+                    <p class="card-description">Watch detailed video demonstrations of sign language movements with hand positioning and motion guidance.</p>
+                    <ul class="card-features">
+                        <li>✓ Full hand movement guidance</li>
+                        <li>✓ 250+ ASL signs</li>
+                        <li>✓ Multiple perspectives</li>
+                        <li>✓ Play/pause controls</li>
+                    </ul>
+                    <a href="/learn/video" class="card-btn">Go to Videos</a>
                 </div>
-                <div class="sign-info">
-                    <h3 class="sign-name">{{ sign.capitalize() }}</h3>
-                    <p class="sign-note">Tap to view sign</p>
+
+                <!-- Image Learning Card -->
+                <div class="learn-option-card image-card neumorphic" data-type="image">
+                    <div class="card-icon">🖼️</div>
+                    <h3 class="card-title">Learn from Images</h3>
+                    <p class="card-description">Visual representation of sign language symbols and static hand shapes with detailed descriptions.</p>
+                    <ul class="card-features">
+                        <li>✓ Static hand positions</li>
+                        <li>✓ Visual references</li>
+                        <li>✓ Symbol meanings</li>
+                        <li>✓ Quick reference</li>
+                    </ul>
+                    <a href="/learn/image" class="card-btn">Go to Images</a>
                 </div>
-                <!-- <div class="sign-rating">
-                    <span class="stars">⭐ 4.5</span>
-                </div> -->
             </div>
-            {% endfor %}
         </div>
 
-        <div id="no-results" class="no-results" style="display: none;">
-            <p>No signs found matching your search. Try different keywords.</p>
+        <!-- Instructions Section -->
+        <div class="instructions-section neumorphic">
+            <h2 class="section-heading">📚 How to Learn</h2>
+            
+            <div class="instructions-grid">
+                <div class="instruction-card">
+                    <div class="instruction-number">1</div>
+                    <h4>Choose Your Method</h4>
+                    <p>Select whether you prefer learning from videos with full motion or static images with hand shapes.</p>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-number">2</div>
+                    <h4>Search or Browse</h4>
+                    <p>Use the search feature to find specific signs or browse through all available signs by category.</p>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-number">3</div>
+                    <h4>Study the Details</h4>
+                    <p>Watch/view the detailed demonstrations and pay attention to hand movements, positions, and facial expressions.</p>
+                </div>
+
+                <div class="instruction-card">
+                    <div class="instruction-number">4</div>
+                    <h4>Practice & Master</h4>
+                    <p>Practice each sign repeatedly and compare your movements with the demonstrations.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Section -->
+        <div class="info-section">
+            <div class="info-box language-info neumorphic">
+                <h3>📖 About ASL</h3>
+                <p>American Sign Language (ASL) is a natural language that serves as the predominant sign language of Deaf communities in the United States and English-speaking parts of Canada. We provide comprehensive learning materials covering 250+ commonly used signs.</p>
+            </div>
+
+            <div class="info-box tips-info neumorphic">
+                <h3>💡 Learning Tips</h3>
+                <ul>
+                    <li><strong>Start Simple:</strong> Begin with basic greetings and common words</li>
+                    <li><strong>Watch Carefully:</strong> Pay attention to hand shapes, positions, and movements</li>
+                    <li><strong>Mirror Movements:</strong> Practice by facing a mirror to check your positioning</li>
+                    <li><strong>Consistent Practice:</strong> Regular practice helps build muscle memory</li>
+                    <li><strong>Use Both Methods:</strong> Combine videos and images for comprehensive learning</li>
+                </ul>
+            </div>
+
+            <div class="info-box features-info neumorphic">
+                <h3>✨ Features</h3>
+                <ul>
+                    <li><strong>Dual Learning Mode:</strong> Video and image learning options</li>
+                    <li><strong>Advanced Search:</strong> Search across videos, images, and categories</li>
+                    <li><strong>Categorized Content:</strong> Animals, emotions, objects, greetings and more</li>
+                    <li><strong>Interactive Experience:</strong> Hover to preview, click for details</li>
+                    <li><strong>Mobile Friendly:</strong> Learn on any device, anytime, anywhere</li>
+                </ul>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Modal for sign details -->
-<div id="sign-modal" class="modal">
-    <div class="modal-content neumorphic">
-        <div class="modal-header">
-            <h2 id="modal-sign-name">Sign Name</h2>
-            <button class="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="modal-video">
-                    <video id="modal-video" width="100%" controls>
-                        <source id="modal-video-source" src="" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-            </div>
-            <div class="modal-details">
-                <div class="detail-group">
-                    <h4>Description</h4>
-                    <p id="modal-description">Sign description would appear here with detailed instructions on how to perform this sign.</p>
-                </div>
-                <div class="detail-group">
-                    <h4>Hand Shapes</h4>
-                    <p id="modal-hand-shapes">Information about hand shapes used in this sign.</p>
-                </div>
-                <div class="detail-group">
-                    <h4>Movement</h4>
-                    <p id="modal-movement">Description of the movement required.</p>
-                </div>
-            </div>
-        </div>
-        <!-- <div class="modal-footer">
-            <button id="practice-btn" class="btn btn-primary">Practice This Sign</button>
-            <button id="save-btn" class="btn btn-secondary">Save to My List</button>
-        </div> -->
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    const searchInput = document.getElementById('search-input');
-    const signsGrid = document.getElementById('signs-grid');
-    const noResults = document.getElementById('no-results');
-    const resultsCount = document.getElementById('results-count');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const signCards = document.querySelectorAll('.sign-card');
-    const modal = document.getElementById('sign-modal');
-    const modalClose = document.querySelector('.modal-close');
-    let currentFilter = 'all';
-
-    // Define sign categories
-    const animalSigns = ['dog', 'cat', 'bird', 'fish', 'cow', 'horse', 'monkey', 'lion', 'tiger', 'elephant', 'pig', 'duck', 'frog', 'goose', 'bee', 'mouse', 'rabbit', 'snake', 'donkey', 'alligator', 'chicken', 'owl', 'zebra', 'wolf', 'lion', 'giraffe'];
+    // Hub page search functionality
+    const hubSearchInput = document.getElementById('hub-search-input');
+    const hubSearchBtn = document.getElementById('hub-search-btn');
     
-    const emotionSigns = ['happy', 'sad', 'angry', 'surprised', 'scared', 'sleepy', 'hungry', 'thirsty', 'sick', 'tired', 'mad', 'cry', 'smile', 'love', 'cute', 'beautiful', 'pretty'];
-    
-    const objectSigns = ['book', 'car', 'house', 'table', 'chair', 'pencil', 'pen', 'computer', 'phone', 'toy', 'ball', 'apple', 'pizza', 'milk', 'water', 'food', 'drink', 'clothes', 'shoe', 'hat', 'jacket', 'pants', 'shirt'];
-
-    // Thumbnail Video Functionality
-    function initializeThumbnailVideos() {
-        const thumbnailVideos = document.querySelectorAll('.thumbnail-video');
-        
-        thumbnailVideos.forEach(video => {
-            // Load first frame of video when metadata is loaded
-            video.addEventListener('loadedmetadata', function() {
-                // Seek to a small value to load the first frame
-                this.currentTime = 0;
-                this.muted = true;
-                this.playsInline = true;
-            }, { once: true });
-
-            // Request to load video metadata
-            video.load();
-
-            // Get parent sign card for hover effects
-            const signCard = video.closest('.sign-card');
-            const playIcon = signCard.querySelector('.play-icon');
-
-            // Play video preview on hover
-            signCard.addEventListener('mouseenter', () => {
-                video.currentTime = 0;
-                // Attempt to play
-                const playPromise = video.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(error => {
-                        console.log('Video autoplay prevented:', error);
-                    });
-                }
-            });
-
-            // Pause video on mouse leave
-            signCard.addEventListener('mouseleave', () => {
-                video.pause();
-                video.currentTime = 0;
-            });
-        });
-    }
-
-    function filterSigns() {
-        let visibleCount = 0;
-        const query = searchInput.value.toLowerCase();
-
-        for (const card of signCards) {
-            const signName = card.dataset.sign.toLowerCase();
-            const matchesSearch = signName.includes(query);
-            
-            let matchesCategory = true;
-            if (currentFilter !== 'all') {
-                let categoryList = [];
-                if (currentFilter === 'animals') categoryList = animalSigns;
-                else if (currentFilter === 'emotions') categoryList = emotionSigns;
-                else if (currentFilter === 'objects') categoryList = objectSigns;
-                
-                matchesCategory = categoryList.some(sign => signName.includes(sign.toLowerCase()));
-            }
-
-            if (matchesSearch && matchesCategory) {
-                card.style.display = '';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        }
-
-        if (visibleCount === 0) {
-            signsGrid.style.display = 'none';
-            noResults.style.display = 'block';
-        } else {
-            signsGrid.style.display = 'grid';
-            noResults.style.display = 'none';
-            resultsCount.innerHTML = `Showing <strong>${visibleCount}</strong> signs`;
-            // Reinitialize thumbnails for visible cards
-            initializeThumbnailVideos();
+    // Function to perform search
+    function performSearch() {
+        const query = hubSearchInput.value.trim();
+        if (query) {
+            // Redirect to video subpage with search query
+            window.location.href = `/learn/video?q=${encodeURIComponent(query)}`;
         }
     }
 
-    // Search functionality
-    searchInput.addEventListener('input', filterSigns);
-
-    // Filter buttons
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            filterButtons.forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            currentFilter = e.target.dataset.filter;
-            filterSigns();
-        });
-    });
-
-    // Modal functionality
-    signCards.forEach(card => {
-        card.addEventListener('click', () => {
-            const signName = card.dataset.sign;
-            document.getElementById('modal-sign-name').textContent = signName.toUpperCase();
-            document.getElementById('modal-description').textContent = `Learn how to sign "${signName}". Follow the hand movements and positions shown in the video.`;
-            document.getElementById('modal-hand-shapes').textContent = 'Various hand shapes are used. Watch the video for the specific hand configuration.';
-            document.getElementById('modal-movement').textContent = 'Observe the location, direction, and type of movement in the video.';
-            
-            // Set video source dynamically
-            const videoSource = document.getElementById('modal-video-source');
-            const videoElement = document.getElementById('modal-video');
-            videoSource.src = `/static/videos/${signName.toLowerCase()}.mp4`;
-            videoElement.load();
-            
-            modal.style.display = 'flex';
-        });
-    });
-
-    modalClose.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
+    // Search on Enter key
+    hubSearchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            performSearch();
         }
     });
 
-    // Practice button
-    document.getElementById('practice-btn').addEventListener('click', () => {
-        alert('Starting practice mode for: ' + document.getElementById('modal-sign-name').textContent);
+    // Search on button click
+    hubSearchBtn.addEventListener('click', performSearch);
+
+    hubSearchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        // Optional: Show search suggestions or real-time results
+        console.log('Hub search query:', query);
     });
 
-    // Save button
-    document.getElementById('save-btn').addEventListener('click', () => {
-        alert('Added to your practice list!');
+    // Add click handlers for cards
+    document.querySelectorAll('.learn-option-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
     });
-
-    // Initialize thumbnail videos after DOM is ready
-    initializeThumbnailVideos();
-
-    // Initialize grid display
-    filterSigns();
 </script>
 {% endblock %}

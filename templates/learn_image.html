@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}Learn from Images - Sign Language Platform{% endblock %}
+
+{% block content %}
+<section class="learn-section">
+    <div class="container">
+        <!-- Header with Back Button -->
+        <div class="subpage-header">
+            <a href="/learn" class="back-btn">← Back to Learn</a>
+            <h1 class="page-title">Learn from Images</h1>
+            <p class="page-subtitle">Visual representation of sign language symbols and static hand shapes</p>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="image-search-container neumorphic">
+            <div class="search-wrapper">
+                <input 
+                    type="text" 
+                    id="image-search-input" 
+                    class="search-input" 
+                    placeholder="Search signs (e.g., 'hello', 'emotion', 'greet')..."
+                >
+                <span class="search-icon">🔍</span>
+            </div>
+            <div class="search-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="greeting">Greeting</button>
+                <button class="filter-btn" data-filter="emotion">Emotion</button>
+                <button class="filter-btn" data-filter="action">Action</button>
+            </div>
+            <div id="image-results-count" class="results-count">Showing <strong>0</strong> signs</div>
+        </div>
+
+        <!-- Image Grid -->
+        <div id="images-grid" class="images-grid">
+            <!-- Images will be dynamically loaded here -->
+        </div>
+
+        <div id="no-images" class="no-results" style="display: block;">
+            <p>Loading sign images...</p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const imageSearchInput = document.getElementById('image-search-input');
+    const imagesGrid = document.getElementById('images-grid');
+    const noImages = document.getElementById('no-images');
+    const imageResultsCount = document.getElementById('image-results-count');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    let currentImageFilter = 'all';
+    let allImageSignsData = [];
+
+    // Define sign categories based on keywords
+    const categoryKeywords = {
+        'greeting': ['hello', 'bye', 'thankyou', 'please', 'morning', 'night', 'goodbye'],
+        'emotion': ['happy', 'sad', 'angry', 'mad', 'cry', 'smile', 'love', 'cute', 'pretty', 'beautiful', 'sick', 'tired', 'sleepy', 'hungry', 'thirsty'],
+        'action': ['go', 'jump', 'dance', 'walk', 'run', 'fly', 'swim', 'ride', 'drive', 'make', 'give', 'take', 'drop', 'clean', 'open', 'close', 'cut', 'touch', 'push', 'pull'],
+        'object': ['toy', 'ball', 'book', 'car', 'house', 'table', 'chair', 'bed', 'door', 'window', 'flower', 'tree', 'water', 'food', 'apple', 'pizza', 'milk', 'chocolate']
+    };
+
+    // Function to determine category based on word
+    function getCategoryForSign(signName) {
+        const lower = signName.toLowerCase();
+        for (const [category, keywords] of Object.entries(categoryKeywords)) {
+            if (keywords.some(keyword => lower.includes(keyword))) {
+                return category;
+            }
+        }
+        return 'general';
+    }
+
+    // Load all signs from server data
+    const signsListData = {{ signs | tojson }};
+    
+    // Initialize image signs data from signs list
+    allImageSignsData = signsListData.map((sign, index) => ({
+        name: sign,
+        category: getCategoryForSign(sign),
+        id: sign.toLowerCase().replace(/\s+/g, '_')
+    }));
+
+    // Get search query from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('q');
+    
+    if (searchQuery) {
+        imageSearchInput.value = decodeURIComponent(searchQuery);
+    }
+
+    // Load images into grid
+    function loadImages() {
+        imagesGrid.innerHTML = '';
+
+        allImageSignsData.forEach((sign, index) => {
+            const imageNumber = String(index + 1).padStart(3, '0');
+            const imagePath = `/static/images/${sign.id}.png`;
+
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            card.dataset.category = sign.category;
+            card.dataset.name = sign.name.toLowerCase();
+            card.style.animationDelay = `${(index % 50) * 0.05}s`;
+            
+            card.innerHTML = `
+                <div class="image-card-content">
+                    <div class="image-placeholder">
+                        <img src="${imagePath}" alt="${sign.name}" class="sign-image" onerror="this.src='/static/images/placeholder.png'; this.style.opacity='0.5';">
+                        <div class="image-overlay">
+                            <span class="image-number">#${imageNumber}</span>
+                        </div>
+                    </div>
+                    <div class="image-info">
+                        <h4 class="image-name">${sign.name}</h4>
+                        <p class="image-category">${sign.category}</p>
+                    </div>
+                </div>
+            `;
+
+            imagesGrid.appendChild(card);
+        });
+
+        noImages.style.display = 'none';
+        imagesGrid.style.display = 'grid';
+    }
+
+    // Filter images function
+    function filterImages() {
+        let visibleCount = 0;
+        const query = imageSearchInput.value.toLowerCase();
+        const imageCards = document.querySelectorAll('.image-card');
+
+        imageCards.forEach(card => {
+            const signName = card.dataset.name;
+            const signCategory = card.dataset.category;
+            const matchesSearch = signName.includes(query) || query === '';
+            
+            let matchesFilter = true;
+            if (currentImageFilter !== 'all') {
+                matchesFilter = signCategory === currentImageFilter;
+            }
+
+            if (matchesSearch && matchesFilter) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        if (visibleCount === 0) {
+            imagesGrid.style.display = 'none';
+            noImages.style.display = 'block';
+            noImages.innerHTML = '<p>No images found matching your search. Try different keywords.</p>';
+        } else {
+            imagesGrid.style.display = 'grid';
+            noImages.style.display = 'none';
+            imageResultsCount.innerHTML = `Showing <strong>${visibleCount}</strong> signs`;
+        }
+    }
+
+    // Search functionality
+    imageSearchInput.addEventListener('input', filterImages);
+
+    // Filter buttons
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            filterButtons.forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentImageFilter = e.target.dataset.filter;
+            filterImages();
+        });
+    });
+
+    // Initialize
+    loadImages();
+    setTimeout(() => filterImages(), 100);
+</script>
+{% endblock %}
